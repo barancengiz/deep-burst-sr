@@ -6,7 +6,7 @@ import sys
 try:
     from external.pwcnet.correlation import correlation # the custom cost volume layer
 except:
-    sys.path.insert(0, './correlation'); import correlation # you should consider upgrading python
+    sys.path.insert(0, '/home/baran/Documents/code/deep-burst-sr/external/pwcnet/correlation'); import correlation # you should consider upgrading python
 
 
 backwarp_tenGrid = {}

@@ -20,7 +20,7 @@ conda activate $conda_env_name
 echo ""
 echo ""
 echo "****************** Installing pytorch with cuda10.2 ******************"
-conda install -y pytorch torchvision cudatoolkit=10.2 -c pytorch
+conda install -y pytorch torchvision cudatoolkit=11 -c pytorch
 
 echo ""
 echo ""
@@ -39,7 +39,7 @@ echo ""
 echo ""
 echo "****************** Installing cupy (dependency for pwcnet) ******************"
 
-conda install -y -c conda-forge cupy=7.8.0
+conda install -y -c conda-forge cupy
 
 echo ""
 echo ""
