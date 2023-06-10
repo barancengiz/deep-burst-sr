@@ -37,7 +37,9 @@ def match_colors(im_ref, im_q, im_test, ksz, gauss_kernel):
     # Estimate color transformation matrix by minimizing the least squares error
     c_mat_all = []
     for ir, iq in zip(im_ref_mean_re, im_q_mean_re):
-        c = torch.lstsq(ir.t(), iq.t())
+        # WARNING: torch.lstsq is deprecated
+        # Order of parameters for torch linalg is REVERSED!!!
+        c = torch.linalg.lstsq(iq.t(), ir.t())
         c = c.solution[:3]
         c_mat_all.append(c)
 
