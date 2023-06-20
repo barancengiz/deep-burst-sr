@@ -80,3 +80,48 @@ def dbsrnet_cvpr2021(enc_init_dim, enc_num_res_blocks, enc_out_dim,
 
     net = DBSRNet(encoder=encoder, merging=merging, decoder=decoder)
     return net
+
+
+@model_constructor
+def dbsrnet_ldm(enc_init_dim, enc_num_res_blocks, enc_out_dim,
+                dec_init_conv_dim, dec_num_pre_res_blocks, dec_post_conv_dim, dec_num_post_res_blocks,
+                upsample_factor=2, activation='relu', train_alignmentnet=False,
+                offset_feat_dim=64,
+                weight_pred_proj_dim=32,
+                num_offset_feat_extractor_res=1,
+                num_weight_predictor_res=1,
+                offset_modulo=1.0,
+                use_offset=True,
+                ref_offset_noise=0.0,
+                softmax=True,
+                use_base_frame=True,
+                icnrinit=False,
+                gauss_blur_sd=None,
+                gauss_ksz=3,
+                diffusion_emb_dims=3,
+                ):
+    # backbone
+    alignment_net = PWCNet(load_pretrained=True,
+                           weights_path='{}/pwcnet-network-default.pth'.format(env_settings().pretrained_nets_dir))
+    diffusion_net = LatentDiffusion(load_pretrained=True, weights_path=f"")
+
+
+    encoder = dbsr_encoders.ResEncoderWarpAlignnet(enc_init_dim, enc_num_res_blocks, enc_out_dim,
+                                                   alignment_net,
+                                                   activation=activation,
+                                                   train_alignmentnet=train_alignmentnet)
+
+    merging = dbsr_merging.WeightedSumPlusStub(enc_out_dim, weight_pred_proj_dim, offset_feat_dim,
+                                               num_offset_feat_extractor_res=num_offset_feat_extractor_res,
+                                               num_weight_predictor_res=num_weight_predictor_res,
+                                               offset_modulo=offset_modulo,
+                                               use_offset=use_offset,
+                                               ref_offset_noise=ref_offset_noise,
+                                               softmax=softmax, use_base_frame=use_base_frame, 
+                                               upsample_factor=upsample_factor, 
+                                               diffusion_cond_dims=diffusion_cond_dims)
+    # TODO: Fill diffusion_opt with scheduler, diffusion steps, upsample factor, unet sizes etc.
+    decoder = dbsr_decoders.BurstDiffusion(diffusion_opt)
+
+    net = DBSRNet(encoder=encoder, merging=merging, decoder=decoder)
+    return net
